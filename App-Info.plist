@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>OpenTeleprompter</string>
+    <key>CFBundleDisplayName</key>
+    <string>OpenTeleprompter</string>
+    <key>CFBundleExecutable</key>
+    <string>OpenTeleprompter</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.openteleprompter.app</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleVersion</key>
+    <string>0.1.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>0.1.0</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>14.0</string>
+    <key>LSUIElement</key>
+    <true/>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>提词器需要麦克风来识别你的朗读进度，以便在灵动岛上同步高亮已念到的位置。</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>提词器需要调用语音识别，将麦克风和面试官的声音转写为文字。</string>
+    <key>NSScreenCaptureUsageDescription</key>
+    <string>面试模式下需要捕获会议软件的系统音频（不会录制画面），以识别面试官的问题。</string>
+</dict>
+</plist>

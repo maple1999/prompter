@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s https://api.github.com/repos/Octane0411/open-vibe-island)",
+      "Bash(curl *)",
+      "Bash(python3 -c ' *)",
+      "Bash(swift --version)",
+      "Bash(xcode-select -p)",
+      "Bash(xcrun --find swift)",
+      "Bash(swift build *)",
+      "Bash(swift test *)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift build)",
+      "Bash(bash scripts/build-app.sh debug)",
+      "Bash(pkill -x OpenTeleprompter)",
+      "Bash(rm -f /tmp/app.stderr)",
+      "Bash(open --stdout /tmp/app.stdout --stderr /tmp/app.stderr OpenTeleprompter.app)",
+      "Bash(rm -f /tmp/app.log)",
+      "Bash(nohup ./OpenTeleprompter.app/Contents/MacOS/OpenTeleprompter)",
+      "Bash(disown)",
+      "Bash(export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer)"
+    ]
+  }
+}
