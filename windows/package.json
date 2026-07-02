@@ -1,0 +1,41 @@
+{
+  "name": "open-teleprompter-windows",
+  "version": "1.0.0",
+  "description": "Open Teleprompter for Windows - Draggable pill-shaped teleprompter overlay",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && electron .",
+    "dev": "tsc && electron .",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder"
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0",
+    "pdfjs-dist": "^4.9.155"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "typescript": "^5.7.2"
+  },
+  "build": {
+    "appId": "com.openteleprompter.windows",
+    "productName": "OpenTeleprompter",
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": ["nsis"],
+      "icon": "assets/icon.ico"
+    },
+    "files": [
+      "dist/**/*",
+      "src/renderer/**/*"
+    ],
+    "extraResources": [
+      "assets/**"
+    ]
+  }
+}

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenTeleprompter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="pill" data-state="compact">
+
+    <!-- Compact state -->
+    <div class="pill-section pill-compact">
+      <span class="mode-dot"></span>
+      <span class="mode-icon"></span>
+      <span class="mode-label"></span>
+    </div>
+
+    <!-- Listening state -->
+    <div class="pill-section pill-listening">
+      <div class="waveform">
+        <span class="wave-bar"></span>
+        <span class="wave-bar"></span>
+        <span class="wave-bar"></span>
+      </div>
+      <span class="listening-label">听题中…</span>
+      <span class="listening-sep"></span>
+      <span class="listening-text"></span>
+    </div>
+
+    <!-- Thinking state -->
+    <div class="pill-section pill-thinking">
+      <div class="thinking-dots">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+      <span class="thinking-label">思考中…</span>
+    </div>
+
+    <!-- Teleprompter state -->
+    <div class="pill-section pill-teleprompter">
+      <div class="teleprompter-tokens"></div>
+    </div>
+
+    <!-- Error state -->
+    <div class="pill-section pill-error">
+      <span class="error-icon">⚠</span>
+      <span class="error-message"></span>
+    </div>
+
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

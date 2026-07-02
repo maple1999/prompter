@@ -1,0 +1,429 @@
+/* ──────────────────────────────────────────
+   OpenTeleprompter — Pill Overlay Styles
+   Premium glassmorphism floating pill UI
+   ────────────────────────────────────────── */
+
+/* ── Custom Properties ── */
+:root {
+  --pill-bg: rgba(15, 15, 15, 0.92);
+  --pill-border: rgba(255, 255, 255, 0.08);
+  --pill-border-bottom: rgba(255, 255, 255, 0.04);
+  --pill-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --pill-blur: blur(24px) saturate(180%);
+  --pill-radius-compact: 9999px;
+  --pill-radius-expanded: 22px;
+  --pill-transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+
+  --font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+  --font-size-sm: 12.5px;
+  --font-size-base: 13.5px;
+  --font-size-lg: 14px;
+
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-secondary: rgba(255, 255, 255, 0.60);
+  --text-tertiary: rgba(255, 255, 255, 0.40);
+  --text-ghost: rgba(255, 255, 255, 0.22);
+
+  --color-meeting: #4DDB8E;
+  --color-interview: #66B3FF;
+  --color-quiz: #F2B233;
+  --color-listening: #FF4D4D;
+  --color-error-accent: rgba(255, 100, 50, 0.08);
+  --color-error-icon: #FF8C42;
+
+  --token-unread: rgba(255, 255, 255, 1.0);
+  --token-matched: rgba(255, 255, 255, 0.40);
+  --token-skipped: rgba(255, 255, 255, 0.22);
+  --token-cursor-bg: rgba(255, 255, 255, 0.10);
+}
+
+/* ── Reset & Base ── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+  -webkit-app-region: drag;
+}
+
+/* ── Pill Container ── */
+#pill {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--pill-bg);
+  backdrop-filter: var(--pill-blur);
+  -webkit-backdrop-filter: var(--pill-blur);
+  border: 1px solid var(--pill-border);
+  border-bottom-color: var(--pill-border-bottom);
+  border-radius: var(--pill-radius-compact);
+  box-shadow: var(--pill-shadow);
+  transition: var(--pill-transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  -webkit-app-region: drag;
+}
+
+/* ── State Sizing ── */
+#pill[data-state="compact"] {
+  width: 200px;
+  height: 36px;
+  border-radius: var(--pill-radius-compact);
+}
+
+#pill[data-state="listening"] {
+  height: 48px;
+  border-radius: var(--pill-radius-compact);
+}
+
+#pill[data-state="listening"].has-text {
+  width: 560px;
+}
+
+#pill[data-state="listening"]:not(.has-text) {
+  width: 280px;
+}
+
+#pill[data-state="thinking"] {
+  width: 280px;
+  height: 48px;
+  border-radius: var(--pill-radius-compact);
+}
+
+#pill[data-state="teleprompter"] {
+  width: 680px;
+  min-height: 48px;
+  max-height: 120px;
+  border-radius: var(--pill-radius-expanded);
+  padding: 10px 20px;
+}
+
+#pill[data-state="error"] {
+  width: 380px;
+  height: 56px;
+  border-radius: var(--pill-radius-expanded);
+  background: linear-gradient(135deg, var(--pill-bg), var(--color-error-accent));
+}
+
+#pill[data-state="hidden"] {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Section Visibility ── */
+.pill-section {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 16px;
+  animation: fadeScaleIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+#pill[data-state="compact"] .pill-compact,
+#pill[data-state="listening"] .pill-listening,
+#pill[data-state="thinking"] .pill-thinking,
+#pill[data-state="teleprompter"] .pill-teleprompter,
+#pill[data-state="error"] .pill-error {
+  display: flex;
+}
+
+/* ── Compact State ── */
+.pill-compact {
+  gap: 8px;
+}
+
+.mode-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mode-icon {
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.mode-label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+/* Mode colors */
+#pill[data-state="compact"][data-mode="meeting"] .mode-dot {
+  background-color: var(--color-meeting);
+  box-shadow: 0 0 8px var(--color-meeting);
+}
+#pill[data-state="compact"][data-mode="interview"] .mode-dot {
+  background-color: var(--color-interview);
+  box-shadow: 0 0 8px var(--color-interview);
+}
+#pill[data-state="compact"][data-mode="quiz"] .mode-dot {
+  background-color: var(--color-quiz);
+  box-shadow: 0 0 8px var(--color-quiz);
+}
+
+/* ── Listening State ── */
+.pill-listening {
+  gap: 10px;
+  padding: 0 20px;
+}
+
+.waveform {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.wave-bar {
+  width: 3.5px;
+  border-radius: 2px;
+  background-color: var(--color-listening);
+  animation: waveBar 0.8s ease-in-out infinite;
+}
+
+.wave-bar:nth-child(1) {
+  height: 10px;
+  animation-delay: 0s;
+}
+
+.wave-bar:nth-child(2) {
+  height: 18px;
+  animation-delay: 0.15s;
+}
+
+.wave-bar:nth-child(3) {
+  height: 12px;
+  animation-delay: 0.3s;
+}
+
+.listening-label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.listening-sep {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.18);
+  flex-shrink: 0;
+}
+
+.listening-text {
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: rtl;
+  text-align: left;
+  min-width: 0;
+  flex: 1;
+}
+
+/* Hide separator and text area when no text */
+#pill[data-state="listening"]:not(.has-text) .listening-sep,
+#pill[data-state="listening"]:not(.has-text) .listening-text {
+  display: none;
+}
+
+/* ── Thinking State ── */
+.pill-thinking {
+  gap: 12px;
+}
+
+.thinking-dots {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.thinking-dots .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: white;
+  animation: dotPulse 1.2s ease-in-out infinite;
+}
+
+.thinking-dots .dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.thinking-dots .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.thinking-dots .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.thinking-label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: 0.2px;
+}
+
+/* ── Teleprompter State ── */
+.pill-teleprompter {
+  position: relative;
+  padding: 10px 20px;
+  justify-content: flex-start;
+}
+
+.teleprompter-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  width: 100%;
+  max-height: calc(var(--font-size-lg) * 1.6 * 3);
+  overflow: hidden;
+  line-height: 1.6;
+  -webkit-app-region: no-drag;
+  position: relative;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 4%,
+    black 96%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 4%,
+    black 96%,
+    transparent 100%
+  );
+}
+
+/* Single-line mode */
+.teleprompter-tokens.single-line {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  max-height: calc(var(--font-size-lg) * 1.6);
+}
+
+.teleprompter-tokens.single-line::-webkit-scrollbar {
+  display: none;
+}
+
+.teleprompter-tokens .token {
+  font-size: var(--font-size-lg);
+  font-weight: 400;
+  white-space: pre;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  padding: 1px 0;
+  border-radius: 3px;
+}
+
+.teleprompter-tokens .token.unread {
+  color: var(--token-unread);
+}
+
+.teleprompter-tokens .token.matched {
+  color: var(--token-matched);
+}
+
+.teleprompter-tokens .token.skipped {
+  color: var(--token-skipped);
+  text-decoration: line-through;
+  text-decoration-color: rgba(255, 255, 255, 0.12);
+}
+
+.teleprompter-tokens .token.cursor {
+  background-color: var(--token-cursor-bg);
+  padding: 1px 3px;
+}
+
+/* ── Error State ── */
+.pill-error {
+  gap: 10px;
+  padding: 0 20px;
+}
+
+.error-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  color: var(--color-error-icon);
+}
+
+.error-message {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.88);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Keyframe Animations ── */
+@keyframes fadeScaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes waveBar {
+  0%, 100% {
+    transform: scaleY(0.5);
+  }
+  50% {
+    transform: scaleY(1.4);
+  }
+}
+
+@keyframes dotPulse {
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* ── Utility ── */
+.no-drag {
+  -webkit-app-region: no-drag;
+}

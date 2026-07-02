@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenTeleprompter — 设置</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="settings-layout">
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">⚡</div>
+        <span class="sidebar-title">OpenTeleprompter</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="nav-item active" data-tab="llm">
+          <span class="nav-icon">🤖</span>
+          <span class="nav-label">LLM设置</span>
+        </li>
+        <li class="nav-item" data-tab="speech">
+          <span class="nav-icon">🎙️</span>
+          <span class="nav-label">语音识别</span>
+        </li>
+        <li class="nav-item" data-tab="script">
+          <span class="nav-icon">📋</span>
+          <span class="nav-label">会议稿件</span>
+        </li>
+        <li class="nav-item" data-tab="resume">
+          <span class="nav-icon">📄</span>
+          <span class="nav-label">个人简历</span>
+        </li>
+        <li class="nav-item" data-tab="quiz">
+          <span class="nav-icon">📝</span>
+          <span class="nav-label">笔试助手</span>
+        </li>
+        <li class="nav-item" data-tab="about">
+          <span class="nav-icon">ℹ️</span>
+          <span class="nav-label">关于</span>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Content Panel -->
+    <main class="content">
+
+      <!-- LLM Settings -->
+      <section class="tab-panel active" id="panel-llm">
+        <h2 class="panel-title">LLM 设置</h2>
+        <p class="panel-desc">配置 AI 大语言模型的连接参数和行为偏好。</p>
+
+        <div class="form-card">
+          <div class="form-group">
+            <label class="form-label" for="baseURL">API Base URL</label>
+            <input class="form-input" type="text" id="baseURL" placeholder="https://api.openai.com">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="apiKey">API Key</label>
+            <input class="form-input" type="password" id="apiKey" placeholder="sk-...">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="model">模型名称</label>
+            <input class="form-input" type="text" id="model" placeholder="gpt-4o">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="maxTokens">最大 Tokens</label>
+              <input class="form-input" type="number" id="maxTokens" min="128" max="32768" step="128" placeholder="1024">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="temperature">温度 <span class="temperature-value" id="temperatureValue">0.7</span></label>
+              <input class="form-slider" type="range" id="temperature" min="0" max="2" step="0.1" value="0.7">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="systemPrompt">System Prompt</label>
+            <textarea class="form-textarea" id="systemPrompt" rows="5" placeholder="输入系统提示词…"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Speech Recognition -->
+      <section class="tab-panel" id="panel-speech">
+        <h2 class="panel-title">语音识别</h2>
+        <p class="panel-desc">设置语音识别的语言偏好。</p>
+
+        <div class="form-card">
+          <div class="form-group">
+            <label class="form-label">识别语言</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="language" value="zh-CN" checked>
+                <span class="radio-check"></span>
+                <span class="radio-text">中文 (zh-CN)</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="language" value="en-US">
+                <span class="radio-check"></span>
+                <span class="radio-text">English (en-US)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Meeting Script -->
+      <section class="tab-panel" id="panel-script">
+        <h2 class="panel-title">会议稿件</h2>
+        <p class="panel-desc">粘贴会议稿件内容，用于会议模式下的提词器显示。</p>
+
+        <div class="form-card">
+          <div class="form-group">
+            <label class="form-label" for="script">稿件内容</label>
+            <textarea class="form-textarea large" id="script" rows="16" placeholder="在这里粘贴会议稿件内容…"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Resume -->
+      <section class="tab-panel" id="panel-resume">
+        <h2 class="panel-title">个人简历</h2>
+        <p class="panel-desc">上传个人简历，面试模式下 AI 将参考简历内容生成回答。</p>
+
+        <div class="form-card">
+          <div class="form-group">
+            <label class="form-label">简历文件</label>
+            <div class="upload-area">
+              <button class="btn btn-primary" id="uploadResumeBtn">
+                <span class="btn-icon">📎</span>
+                上传简历
+              </button>
+              <span class="upload-filename" id="resumeFileName">未选择文件</span>
+              <button class="btn btn-ghost" id="clearResumeBtn" style="display: none;">清除</button>
+            </div>
+          </div>
+
+          <div class="form-group" id="resumePreviewGroup" style="display: none;">
+            <label class="form-label">简历预览</label>
+            <textarea class="form-textarea large" id="resumePreview" rows="12" readonly placeholder="简历内容将在此显示…"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quiz Assistant -->
+      <section class="tab-panel" id="panel-quiz">
+        <h2 class="panel-title">笔试助手</h2>
+        <p class="panel-desc">配置笔试助手的截图模式和 AI 提示词。</p>
+
+        <div class="form-card">
+          <div class="form-group">
+            <label class="form-label">截图模式</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="quizScreenshotMode" value="fullscreen" checked>
+                <span class="radio-check"></span>
+                <div class="radio-content">
+                  <span class="radio-text">全屏截图</span>
+                  <span class="radio-hint">自动截取完整屏幕内容</span>
+                </div>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="quizScreenshotMode" value="interactive">
+                <span class="radio-check"></span>
+                <div class="radio-content">
+                  <span class="radio-text">交互选区</span>
+                  <span class="radio-hint">手动选择截图区域</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="quizSystemPrompt">笔试 System Prompt</label>
+            <textarea class="form-textarea" id="quizSystemPrompt" rows="6" placeholder="输入笔试助手的系统提示词…"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- About -->
+      <section class="tab-panel" id="panel-about">
+        <h2 class="panel-title">关于</h2>
+        <p class="panel-desc">OpenTeleprompter — AI 面试与会议助手</p>
+
+        <div class="form-card">
+          <div class="about-info">
+            <div class="about-logo">⚡</div>
+            <h3 class="about-name">OpenTeleprompter</h3>
+            <span class="about-version" id="appVersion">v1.0.0</span>
+            <p class="about-tagline">AI-powered real-time teleprompter for meetings and interviews.</p>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3 class="card-title">快捷键参考</h3>
+          <table class="hotkey-table">
+            <thead>
+              <tr>
+                <th>操作</th>
+                <th>快捷键</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>开始 / 停止会话</td>
+                <td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td>
+              </tr>
+              <tr>
+                <td>切换模式</td>
+                <td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd></td>
+              </tr>
+              <tr>
+                <td>显示 / 隐藏药丸</td>
+                <td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>H</kbd></td>
+              </tr>
+              <tr>
+                <td>打开设置</td>
+                <td><kbd>Ctrl</kbd> + <kbd>,</kbd></td>
+              </tr>
+              <tr>
+                <td>笔试截图</td>
+                <td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Q</kbd></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
