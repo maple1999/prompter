@@ -6,7 +6,7 @@
 
 const pill = document.getElementById('pill');
 
-/** Current session mode, updated via state */
+/** Current session mode, pushed from main via pill:mode-update */
 let currentMode = 'meeting';
 
 /** Mode display configuration */
@@ -16,18 +16,19 @@ const MODE_CONFIG = {
   quiz: { icon: '📝', label: '笔试模式' },
 };
 
+const KIND_LABELS = {
+  choice: '选择题',
+  fill: '填空题',
+  coding: '编程题',
+};
+
 // ── State Renderers ──
 
-/**
- * Render the compact idle state with mode indicator.
- * @param {string} mode - 'meeting' | 'interview' | 'quiz'
- */
-function renderCompact(mode) {
-  const config = MODE_CONFIG[mode] || MODE_CONFIG.meeting;
-  currentMode = mode;
+function renderCompact() {
+  const config = MODE_CONFIG[currentMode] || MODE_CONFIG.meeting;
 
   pill.setAttribute('data-state', 'compact');
-  pill.setAttribute('data-mode', mode);
+  pill.setAttribute('data-mode', currentMode);
   pill.classList.remove('has-text');
 
   const section = pill.querySelector('.pill-compact');
@@ -51,9 +52,6 @@ function renderListening(transcript) {
   textEl.textContent = hasText ? transcript : '';
 }
 
-/**
- * Render the thinking state with animated dots.
- */
 function renderThinking() {
   pill.setAttribute('data-state', 'thinking');
   pill.removeAttribute('data-mode');
@@ -84,11 +82,10 @@ function renderTeleprompter(payload) {
     span.className = 'token';
     span.textContent = token;
 
-    // Apply status class
     const status = statuses[i] || 'unread';
     span.classList.add(status);
 
-    // Highlight cursor position
+    // cursor === displayTokens.length 表示已读完，不高亮任何 token
     if (i === cursor) {
       span.classList.add('cursor');
     }
@@ -106,6 +103,38 @@ function renderTeleprompter(payload) {
 }
 
 /**
+ * Render the quiz answer state (mirrors macOS QuizAnswerView):
+ * big answer (or ✓ 已复制 for coding), small reasoning below.
+ * @param {Object} payload - { kind, answer, reasoning, language, codeCopied }
+ */
+function renderQuizAnswer(payload) {
+  pill.setAttribute('data-state', 'quiz-answer');
+  pill.removeAttribute('data-mode');
+  pill.classList.remove('has-text');
+
+  const section = pill.querySelector('.pill-quiz');
+  const kindEl = section.querySelector('.quiz-kind');
+  const answerEl = section.querySelector('.quiz-answer');
+  const reasoningEl = section.querySelector('.quiz-reasoning');
+
+  let kindText = KIND_LABELS[payload.kind] || payload.kind;
+  if (payload.kind === 'coding' && payload.language) {
+    kindText += ` · ${payload.language}`;
+  }
+  kindEl.textContent = kindText;
+
+  if (payload.codeCopied) {
+    answerEl.textContent = '✓ 已复制到剪贴板';
+    answerEl.classList.add('copied');
+  } else {
+    answerEl.textContent = payload.answer || '—';
+    answerEl.classList.remove('copied');
+  }
+
+  reasoningEl.textContent = payload.reasoning || '';
+}
+
+/**
  * Render the error state.
  * @param {string} message - error message text
  */
@@ -118,9 +147,6 @@ function renderError(message) {
   section.querySelector('.error-message').textContent = message || '发生未知错误';
 }
 
-/**
- * Render hidden state.
- */
 function renderHidden() {
   pill.setAttribute('data-state', 'hidden');
   pill.removeAttribute('data-mode');
@@ -129,10 +155,6 @@ function renderHidden() {
 
 // ── State Router ──
 
-/**
- * Handle incoming state update from main process.
- * @param {Object} state - IslandState object with `type` and optional fields
- */
 function handleStateUpdate(state) {
   if (!state || !state.type) return;
 
@@ -142,12 +164,8 @@ function handleStateUpdate(state) {
       break;
 
     case 'compact':
-      renderCompact(state.mode || currentMode);
-      break;
-
     case 'expanded':
-      // Expanded uses same visual as compact but could be extended
-      renderCompact(state.mode || currentMode);
+      renderCompact();
       break;
 
     case 'listening':
@@ -164,6 +182,12 @@ function handleStateUpdate(state) {
       }
       break;
 
+    case 'quiz-answer':
+      if (state.payload) {
+        renderQuizAnswer(state.payload);
+      }
+      break;
+
     case 'error':
       renderError(state.message || '');
       break;
@@ -173,11 +197,22 @@ function handleStateUpdate(state) {
   }
 }
 
-// ── IPC Listener ──
+// ── IPC Listeners ──
 
-if (window.electronAPI && window.electronAPI.onStateUpdate) {
-  window.electronAPI.onStateUpdate(handleStateUpdate);
+if (window.electronAPI) {
+  if (window.electronAPI.onStateUpdate) {
+    window.electronAPI.onStateUpdate(handleStateUpdate);
+  }
+  if (window.electronAPI.onModeUpdate) {
+    window.electronAPI.onModeUpdate((mode) => {
+      currentMode = mode;
+      // 只有 compact 态显示模式指示，其他状态下模式变化会伴随状态更新
+      if (pill.getAttribute('data-state') === 'compact') {
+        renderCompact();
+      }
+    });
+  }
 }
 
 // Initialize to compact state
-renderCompact(currentMode);
+renderCompact();

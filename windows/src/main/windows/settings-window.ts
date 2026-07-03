@@ -24,14 +24,15 @@ export class SettingsWindow {
       webPreferences: {
         preload: this.preloadPath,
         contextIsolation: true,
-        nodeIntegration: false
+        nodeIntegration: false,
+        sandbox: false
       }
     });
 
     // Dark mode by default for native elements
     this.window.setBackgroundColor('#1a1a1a');
 
-    this.window.loadFile(path.join(__dirname, '../../renderer/settings/index.html'));
+    this.window.loadFile(path.join(__dirname, '../../../src/renderer/settings/index.html'));
 
     this.window.on('closed', () => {
       this.window = null;

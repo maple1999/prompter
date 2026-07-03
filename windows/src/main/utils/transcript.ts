@@ -1,4 +1,5 @@
-import { TranscriptEntry, LLMMessage } from '../../shared/types';
+import { TranscriptEntry } from '../../shared/types';
+import { LLMMessage } from '../llm/client';
 
 export class InterviewTranscript {
   private _entries: TranscriptEntry[] = [];

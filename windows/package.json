@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "electron-store": "^8.2.0",
-    "pdfjs-dist": "^4.9.155"
+    "pdfjs-dist": "^3.11.174"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

@@ -6,3 +6,8 @@ DerivedData/
 Package.resolved
 
 OpenTeleprompter.app/
+
+# Windows (Electron) port
+windows/node_modules/
+windows/dist/
+windows/release/

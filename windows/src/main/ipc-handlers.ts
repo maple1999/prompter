@@ -1,16 +1,11 @@
 import { ipcMain, dialog } from 'electron';
-import { IPC, Preferences } from '../../shared/types';
+import * as path from 'path';
+import { IPC, Preferences } from '../shared/types';
 import { PreferencesStore } from './storage/preferences';
 import { PillWindow } from './windows/pill-window';
-import { SettingsWindow } from './windows/settings-window';
-import * as path from 'path';
-// import { parseResumePDF } from './resume/parser';
+import { parseResumePDF } from './resume/parser';
 
-export function registerIpcHandlers(
-  store: PreferencesStore,
-  pillWindow: PillWindow,
-  settingsWindow: SettingsWindow
-) {
+export function registerIpcHandlers(store: PreferencesStore, pillWindow: PillWindow) {
   // Settings Load
   ipcMain.handle(IPC.SETTINGS_LOAD, () => {
     return store.get();
@@ -19,34 +14,34 @@ export function registerIpcHandlers(
   // Settings Save
   ipcMain.handle(IPC.SETTINGS_SAVE, (_event, prefs: Partial<Preferences>) => {
     store.set(prefs);
-    // TODO: Notify active coordinators of config change
+    // 立即生效的偏好：防截屏。其余偏好在下一次会话开始时读取。
+    if (typeof prefs.hideFromScreenShare === 'boolean') {
+      pillWindow.setHideFromCapture(prefs.hideFromScreenShare);
+    }
   });
 
-  // Upload Resume
+  // Upload Resume（真实 PDF 解析）
   ipcMain.handle(IPC.SETTINGS_UPLOAD_RESUME, async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       title: '选择简历',
       filters: [{ name: 'PDF', extensions: ['pdf'] }],
-      properties: ['openFile']
+      properties: ['openFile'],
     });
 
     if (canceled || filePaths.length === 0) return null;
 
+    const filePath = filePaths[0];
+    const fileName = path.basename(filePath);
     try {
-      // Stub for PDF parsing
-      const filePath = filePaths[0];
-      const fileName = path.basename(filePath);
-      
-      // We will implement actual parsing later, for now just a stub text
-      // const text = await parseResumePDF(filePath);
-      const text = `Extracted text from ${fileName}...\n\nExperience:\nSoftware Engineer`;
-      
+      const text = await parseResumePDF(filePath);
+      if (!text.trim()) {
+        return { error: 'PDF 里没有可提取的文本（可能是扫描件）' };
+      }
       store.set({ resumeFileName: fileName, resumeText: text });
-      
       return { fileName, text };
     } catch (error) {
       console.error('Error parsing resume:', error);
-      return null;
+      return { error: `解析失败：${error instanceof Error ? error.message : error}` };
     }
   });
 

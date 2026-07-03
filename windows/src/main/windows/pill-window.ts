@@ -1,97 +1,121 @@
 import { BrowserWindow, screen } from 'electron';
 import * as path from 'path';
-import { IslandState, IPC } from '../../shared/types';
+import { IslandState, SessionMode, IPC } from '../../shared/types';
 
+/**
+ * 药丸浮窗。窗口是透明的，真实外观由 CSS 里的 #pill 决定；
+ * 窗口尺寸按状态给出「CSS 尺寸 + 余量」，宁大勿裁。
+ *
+ * 位置策略：宽度变化时围绕当前中心点重排（用户拖到哪里就留在哪里），
+ * 不再强制回到屏幕水平中央。
+ */
 export class PillWindow {
   public window: BrowserWindow;
+  private lastState: IslandState = { type: 'compact' };
+  private lastMode: SessionMode = 'meeting';
 
   constructor(preloadPath: string) {
     this.window = new BrowserWindow({
-      width: 200,
-      height: 40,
+      width: 240,
+      height: 56,
       frame: false,
       transparent: true,
       alwaysOnTop: true,
       skipTaskbar: true,
       resizable: false,
       hasShadow: false,
+      // 点击药丸不抢焦点（对应 macOS 非激活 NSPanel）
+      focusable: false,
       webPreferences: {
         preload: preloadPath,
         contextIsolation: true,
-        nodeIntegration: false
-      }
+        nodeIntegration: false,
+        // preload 里 require 了共享模块，必须关掉 preload 沙箱
+        sandbox: false,
+      },
     });
 
-    // Default position: top center of primary display
+    this.window.setAlwaysOnTop(true, 'screen-saver');
+    this.window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+
+    // 默认位置：主显示器顶部中央
     const primaryDisplay = screen.getPrimaryDisplay();
     const { width } = primaryDisplay.workAreaSize;
-    this.window.setPosition(Math.floor(width / 2 - 100), 20);
+    this.window.setPosition(Math.floor(width / 2 - 120), 12);
 
-    // Load the HTML file
-    this.window.loadFile(path.join(__dirname, '../../renderer/pill/index.html'));
-    
-    // Always visible on all workspaces
-    this.window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+    this.window.loadFile(path.join(__dirname, '../../../src/renderer/pill/index.html'));
+
+    // 渲染页加载完成后补发当前状态与模式（避免早期消息丢失）
+    this.window.webContents.on('did-finish-load', () => {
+      this.window.webContents.send(IPC.PILL_MODE_UPDATE, this.lastMode);
+      this.window.webContents.send(IPC.PILL_STATE_UPDATE, this.lastState);
+    });
   }
 
   updateState(state: IslandState) {
-    // Resize window based on state
-    const bounds = this.window.getBounds();
-    const primaryDisplay = screen.getPrimaryDisplay();
-    const { width: screenWidth } = primaryDisplay.workAreaSize;
-    
-    let targetWidth = 200;
-    let targetHeight = 40;
+    this.lastState = state;
 
-    switch (state.type) {
-      case 'hidden':
-        this.window.hide();
-        return;
-      case 'compact':
-        targetWidth = 200;
-        targetHeight = 40;
-        break;
-      case 'expanded':
-        targetWidth = 360;
-        targetHeight = 60;
-        break;
-      case 'listening':
-        targetWidth = state.transcript ? 560 : 280;
-        targetHeight = 52;
-        break;
-      case 'thinking':
-        targetWidth = 280;
-        targetHeight = 52;
-        break;
-      case 'teleprompter':
-        // Estimate height based on number of lines
-        const lines = Math.min(3, Math.ceil(state.payload.displayTokens.length / 15) || 1);
-        targetWidth = 680;
-        targetHeight = 40 + lines * 24;
-        break;
-      case 'error':
-        targetWidth = 380;
-        targetHeight = 60;
-        break;
+    if (state.type === 'hidden') {
+      this.window.hide();
+      return;
     }
 
-    if (state.type !== 'hidden' && !this.window.isVisible()) {
+    const { width: targetWidth, height: targetHeight } = PillWindow.sizeFor(state);
+
+    if (!this.window.isVisible()) {
       this.window.showInactive();
     }
 
-    // Keep it centered horizontally
-    const targetX = Math.floor(screenWidth / 2 - targetWidth / 2);
-    
-    // Animate bounds change
+    // 围绕当前中心点重排，保留用户拖动后的位置；并夹在工作区内
+    const bounds = this.window.getBounds();
+    const centerX = bounds.x + bounds.width / 2;
+    const display = screen.getDisplayNearestPoint({ x: Math.round(centerX), y: bounds.y });
+    const wa = display.workArea;
+    let targetX = Math.round(centerX - targetWidth / 2);
+    targetX = Math.max(wa.x, Math.min(targetX, wa.x + wa.width - targetWidth));
+    const targetY = Math.max(wa.y, Math.min(bounds.y, wa.y + wa.height - targetHeight));
+
     this.window.setBounds({
       x: targetX,
-      y: bounds.y,
+      y: targetY,
       width: targetWidth,
-      height: targetHeight
-    }, true);
+      height: targetHeight,
+    });
 
-    // Send state to renderer
     this.window.webContents.send(IPC.PILL_STATE_UPDATE, state);
+  }
+
+  setMode(mode: SessionMode) {
+    this.lastMode = mode;
+    this.window.webContents.send(IPC.PILL_MODE_UPDATE, mode);
+  }
+
+  /** 各状态的窗口尺寸 = CSS 药丸尺寸 + 余量（透明窗口大一点无害，小了会裁内容）。 */
+  private static sizeFor(state: IslandState): { width: number; height: number } {
+    switch (state.type) {
+      case 'compact':
+        return { width: 240, height: 56 };
+      case 'expanded':
+        return { width: 400, height: 76 };
+      case 'listening':
+        return state.transcript
+          ? { width: 600, height: 68 }
+          : { width: 320, height: 68 };
+      case 'thinking':
+        return { width: 320, height: 68 };
+      case 'teleprompter': {
+        // 按显示文本总长估行数（CJK 14px，一行约 45 字），1~3 行
+        const totalChars = state.payload.displayTokens.reduce((sum, t) => sum + t.length, 0);
+        const lines = Math.min(3, Math.max(1, Math.ceil(totalChars / 45)));
+        return { width: 720, height: 44 + lines * 24 + 16 };
+      }
+      case 'quiz-answer':
+        return { width: 720, height: 170 };
+      case 'error':
+        return { width: 420, height: 76 };
+      default:
+        return { width: 240, height: 56 };
+    }
   }
 
   show() {

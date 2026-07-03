@@ -2,11 +2,9 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OpenTeleprompter</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -44,6 +42,15 @@
     <!-- Teleprompter state -->
     <div class="pill-section pill-teleprompter">
       <div class="teleprompter-tokens"></div>
+    </div>
+
+    <!-- Quiz answer state -->
+    <div class="pill-section pill-quiz">
+      <span class="quiz-kind"></span>
+      <div class="quiz-main">
+        <div class="quiz-answer"></div>
+        <div class="quiz-reasoning"></div>
+      </div>
     </div>
 
     <!-- Error state -->

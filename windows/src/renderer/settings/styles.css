@@ -28,7 +28,7 @@
   --color-primary-glow: rgba(77, 138, 255, 0.25);
   --color-danger: #FF5C5C;
 
-  --font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+  --font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', system-ui, sans-serif;
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
@@ -565,4 +565,73 @@ kbd {
   border-radius: 4px;
   margin: 0 2px;
   line-height: 1.5;
+}
+
+/* ── Checkbox ── */
+.checkbox-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.checkbox-option:hover {
+  background: var(--bg-hover);
+}
+
+.checkbox-option input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 2px solid var(--border-input);
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+  position: relative;
+}
+
+.checkbox-option input[type="checkbox"]:checked + .checkbox-box {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+.checkbox-option input[type="checkbox"]:checked + .checkbox-box::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+/* ── Hints ── */
+.form-hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-tertiary, rgba(255, 255, 255, 0.4));
+  line-height: 1.5;
+}
+
+.form-hint-inline {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-tertiary, rgba(255, 255, 255, 0.4));
+  margin-left: 4px;
 }
